@@ -111,7 +111,7 @@ def main():
             print(f'Skipping {bot.name}: too few games.')
             continue
 
-        print(f'Challenging {bot.name}')
+        print(f'Challenging {bot.name} with time control of {tc_seconds} seconds.')
         bot.challenge(tc_seconds)
         return
 
