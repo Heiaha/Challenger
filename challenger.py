@@ -14,16 +14,16 @@ TOTAL_GAMES_MIN = 250
 TC_GAMES_MIN = 50
 TIME_MIN = datetime.timedelta(minutes=10)
 
-TIME_CONTROL_MAP = {
-    60: 'bullet',
-    120: 'bullet',
-    180: 'blitz',
-    300: 'blitz',
-    600: 'rapid',
-    900: 'rapid',
-    1200: 'classical',
-    1800: 'classical',
-}
+TIME_CONTROLS = [
+    60,
+    120,
+    300,
+    420,
+    600,
+    900,
+    1800,
+    2400,
+]
 
 
 class Bot:
@@ -77,6 +77,20 @@ class Bot:
         return [cls(bot_info) for bot_info in bots_info]
 
 
+def classify_tc(tc_seconds, tc_increment=0):
+    duration = tc_seconds + 40*tc_increment
+    if duration < 179:
+        return 'bullet'
+
+    if duration < 479:
+        return 'blitz'
+
+    if duration < 1499:
+        return 'rapid'
+
+    return 'classical'
+
+
 def main():
     # return if we're already playing a game
     if client.games.get_ongoing(count=1):
@@ -84,7 +98,8 @@ def main():
         return
 
     # select a time control to play
-    tc_seconds, tc_name = random.choice(list(TIME_CONTROL_MAP.items()))
+    tc_seconds = random.choice(TIME_CONTROLS)
+    tc_name = classify_tc(tc_seconds)
 
     bots = Bot.get_all()
     random.shuffle(bots)
@@ -111,7 +126,7 @@ def main():
             print(f'Skipping {bot.name}: too few games.')
             continue
 
-        print(f'Challenging {bot.name} with time control of {tc_seconds} seconds.')
+        print(f'Challenging {bot.name} to a {tc_name} game with time control of {tc_seconds} seconds.')
         bot.challenge(tc_seconds)
         return
 
