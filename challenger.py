@@ -5,8 +5,8 @@ import requests
 import re
 import datetime
 
-LICHESS_TOKEN = os.environ.get('LICHESS_TOKEN')
-session = berserk.TokenSession(LICHESS_TOKEN)
+LICHESS_BOT_TOKEN = os.environ.get('LICHESS_BOT_TOKEN')
+session = berserk.TokenSession(LICHESS_BOT_TOKEN)
 client = berserk.Client(session)
 
 RATING_MAX = 300
