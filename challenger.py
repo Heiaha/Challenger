@@ -9,6 +9,7 @@ LICHESS_BOT_TOKEN = os.environ.get('LICHESS_BOT_TOKEN')
 session = berserk.TokenSession(LICHESS_BOT_TOKEN)
 client = berserk.Client(session)
 
+MY_NAME = 'Weiawaga'
 RATING_MAX = 300
 TOTAL_GAMES_MIN = 250
 TC_GAMES_MIN = 50
@@ -104,7 +105,7 @@ def main():
     bots = Bot.get_all()
     random.shuffle(bots)
 
-    me = next(bot for bot in bots if bot.name == 'Weiawaga')
+    me = next(bot for bot in bots if bot.name == MY_NAME)
     my_rating = me.rating(tc_name)
 
     now = datetime.datetime.utcnow()
