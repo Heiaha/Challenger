@@ -31,18 +31,12 @@ class Bot:
     def __init__(self, info):
         self.last_seen = info['seenAt'].replace(tzinfo=None)
         self.name = info['username']
-        self._ratings = {
-            'bullet': info['perfs']['bullet']['rating'],
-            'blitz': info['perfs']['blitz']['rating'],
-            'rapid': info['perfs']['rapid']['rating'],
-            'classical': info['perfs']['classical']['rating']
-        }
-        self._num_games = {
-            'bullet': info['perfs']['bullet']['games'],
-            'blitz': info['perfs']['blitz']['games'],
-            'rapid': info['perfs']['rapid']['games'],
-            'classical': info['perfs']['classical']['games'],
-        }
+
+        self._ratings = {}
+        self._num_games = {}
+        for tc_name in ('bullet', 'blitz', 'rapid', 'classical'):
+            self._ratings[tc_name] = info['perfs'][tc_name]['rating']
+            self._num_games[tc_name] = info['perfs'][tc_name]['games']
 
     @property
     def total_games(self):
@@ -74,6 +68,7 @@ class Bot:
 
         # request the bot info from lichess
         bots_info = client.users.get_by_id(*bot_names)
+        random.shuffle(bots_info)
 
         return [cls(bot_info) for bot_info in bots_info]
 
@@ -103,7 +98,6 @@ def main():
     tc_name = classify_tc(tc_seconds)
 
     bots = Bot.get_all()
-    random.shuffle(bots)
 
     me = next(bot for bot in bots if bot.name == MY_NAME)
     my_rating = me.rating(tc_name)
