@@ -29,8 +29,8 @@ TIME_CONTROLS = [
 
 class Bot:
     def __init__(self, info):
-        self.last_seen = info['seenAt'].replace(tzinfo=None)
         self.name = info['username']
+        self.last_seen = info['seenAt'].replace(tzinfo=None)
 
         self._ratings = {}
         self._num_games = {}
@@ -48,11 +48,11 @@ class Bot:
     def rating(self, tc_name):
         return self._ratings[tc_name]
 
-    def challenge(self, tc_seconds):
+    def challenge(self, tc_seconds, tc_increment=0):
         client.challenges.create(self.name,
                                  rated=True,
                                  clock_limit=tc_seconds,
-                                 clock_increment=0,
+                                 clock_increment=tc_increment,
                                  days=1,
                                  # for some reason it requires days to be equal to 1 even though we're not
                                  # trying to do correspondence?
@@ -70,7 +70,7 @@ class Bot:
         bots_info = client.users.get_by_id(*bot_names)
         random.shuffle(bots_info)
 
-        return [cls(bot_info) for bot_info in bots_info]
+        return [cls(bot_info) for bot_info in bots_info if not bot_info.get('disabled')]
 
 
 def classify_tc(tc_seconds, tc_increment=0):
