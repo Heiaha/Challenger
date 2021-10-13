@@ -5,11 +5,11 @@ import requests
 import re
 import datetime
 
-LICHESS_BOT_TOKEN = os.environ.get('LICHESS_BOT_TOKEN')
+LICHESS_BOT_TOKEN = os.environ.get("LICHESS_BOT_TOKEN")
 session = berserk.TokenSession(LICHESS_BOT_TOKEN)
 client = berserk.Client(session)
 
-MY_NAME = 'Weiawaga'
+MY_NAME = "Weiawaga"
 RATING_MAX = 300
 TOTAL_GAMES_MIN = 250
 TC_GAMES_MIN = 50
@@ -29,14 +29,14 @@ TIME_CONTROLS = [
 
 class Bot:
     def __init__(self, info):
-        self.name = info['username']
-        self.last_seen = info['seenAt'].replace(tzinfo=None)
+        self.name = info["username"]
+        self.last_seen = info["seenAt"].replace(tzinfo=None)
 
         self._ratings = {}
         self._num_games = {}
-        for tc_name in ('bullet', 'blitz', 'rapid', 'classical'):
-            self._ratings[tc_name] = info['perfs'][tc_name]['rating']
-            self._num_games[tc_name] = info['perfs'][tc_name]['games']
+        for tc_name in ("bullet", "blitz", "rapid", "classical"):
+            self._ratings[tc_name] = info["perfs"][tc_name]["rating"]
+            self._num_games[tc_name] = info["perfs"][tc_name]["games"]
 
     @property
     def total_games(self):
@@ -49,16 +49,18 @@ class Bot:
         return self._ratings[tc_name]
 
     def challenge(self, tc_seconds, tc_increment=0):
-        client.challenges.create(self.name,
-                                 rated=True,
-                                 clock_limit=tc_seconds,
-                                 clock_increment=tc_increment,
-                                 days=1,
-                                 # for some reason it requires days to be equal to 1 even though we're not
-                                 # trying to do correspondence?
-                                 color=random.choice([berserk.enums.Color.WHITE, berserk.enums.Color.BLACK]),
-                                 variant=berserk.enums.Variant.STANDARD,
-                                 position="")
+        client.challenges.create(
+            self.name,
+            rated=True,
+            clock_limit=tc_seconds,
+            clock_increment=tc_increment,
+            days=1,
+            # for some reason it requires days to be equal to 1 even though we're not
+            # trying to do correspondence?
+            color=random.choice([berserk.enums.Color.WHITE, berserk.enums.Color.BLACK]),
+            variant=berserk.enums.Variant.STANDARD,
+            position="",
+        )
 
     @classmethod
     def get_all(cls):
@@ -70,27 +72,27 @@ class Bot:
         bots_info = client.users.get_by_id(*bot_names)
         random.shuffle(bots_info)
 
-        return [cls(bot_info) for bot_info in bots_info if not bot_info.get('disabled')]
+        return [cls(bot_info) for bot_info in bots_info if not bot_info.get("disabled")]
 
 
 def classify_tc(tc_seconds, tc_increment=0):
-    duration = tc_seconds + 40*tc_increment
+    duration = tc_seconds + 40 * tc_increment
     if duration < 179:
-        return 'bullet'
+        return "bullet"
 
     if duration < 479:
-        return 'blitz'
+        return "blitz"
 
     if duration < 1499:
-        return 'rapid'
+        return "rapid"
 
-    return 'classical'
+    return "classical"
 
 
 def main():
     # return if we're already playing a game
     if client.games.get_ongoing(count=1):
-        print('Playing a game. Will not challenge.')
+        print("Playing a game. Will not challenge.")
         return
 
     # select a time control to play
@@ -106,25 +108,27 @@ def main():
     for bot in bots:
 
         if bot == me:
-            print('Don\'t challenge myself.')
+            print("Don't challenge myself.")
             continue
 
         if now - bot.last_seen > TIME_MIN:
-            print(f'Skipping {bot.name}: not seen in too long.')
+            print(f"Skipping {bot.name}: not seen in too long.")
             continue
 
         if abs(bot.rating(tc_name) - my_rating) > RATING_MAX:
-            print(f'Skipping {bot.name}: rating difference too large.')
+            print(f"Skipping {bot.name}: rating difference too large.")
             continue
 
         if bot.num_games(tc_name) < TC_GAMES_MIN or bot.total_games < TOTAL_GAMES_MIN:
-            print(f'Skipping {bot.name}: too few games.')
+            print(f"Skipping {bot.name}: too few games.")
             continue
 
-        print(f'Challenging {bot.name} to a {tc_name} game with time control of {tc_seconds} seconds.')
+        print(
+            f"Challenging {bot.name} to a {tc_name} game with time control of {tc_seconds} seconds."
+        )
         bot.challenge(tc_seconds)
         return
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
