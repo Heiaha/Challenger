@@ -5,7 +5,7 @@ import requests
 import re
 import datetime
 
-LICHESS_BOT_TOKEN = os.environ.get("LICHESS_BOT_TOKEN") or "lip_5CFKsNtqnTPPPlvBO2HT"
+LICHESS_BOT_TOKEN = os.environ.get("LICHESS_BOT_TOKEN")
 session = berserk.TokenSession(LICHESS_BOT_TOKEN)
 client = berserk.Client(session)
 
@@ -17,13 +17,13 @@ TIME_MIN = datetime.timedelta(minutes=10)
 
 TIME_CONTROLS = [
     60,
-    # 120,
-    # 300,
-    # 420,
-    # 600,
-    # 900,
-    # 1800,
-    # 2400,
+    120,
+    300,
+    420,
+    600,
+    900,
+    1800,
+    2400,
 ]
 
 
