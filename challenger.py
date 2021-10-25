@@ -5,7 +5,7 @@ import requests
 import re
 import datetime
 
-LICHESS_BOT_TOKEN = os.environ.get("LICHESS_BOT_TOKEN")
+LICHESS_BOT_TOKEN = os.environ.get("LICHESS_BOT_TOKEN") or "lip_5CFKsNtqnTPPPlvBO2HT"
 session = berserk.TokenSession(LICHESS_BOT_TOKEN)
 client = berserk.Client(session)
 
@@ -17,13 +17,13 @@ TIME_MIN = datetime.timedelta(minutes=10)
 
 TIME_CONTROLS = [
     60,
-    120,
-    300,
-    420,
-    600,
-    900,
-    1800,
-    2400,
+    # 120,
+    # 300,
+    # 420,
+    # 600,
+    # 900,
+    # 1800,
+    # 2400,
 ]
 
 
@@ -90,10 +90,11 @@ def classify_tc(tc_seconds, tc_increment=0):
 
 
 def main():
-    # return if we're already playing a game
-    if client.games.get_ongoing(count=1):
-        print("Playing a game. Will not challenge.")
-        return
+    # return if we're already playing a game that isn't correspondence
+    if games := client.games.get_ongoing():
+        if any(game["speed"] != "correspondence" for game in games):
+            print("Playing a game. Will not challenge.")
+            return
 
     # select a time control to play
     tc_seconds = random.choice(TIME_CONTROLS)
