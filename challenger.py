@@ -91,11 +91,9 @@ def classify_tc(tc_seconds, tc_increment=0):
 
 def main():
     # return if we're already playing a game that isn't correspondence
-    if games := client.games.get_ongoing():
-        if non_correspondence_games := [game for game in games if game["speed"] != "correspondence"]:
-            opponents = ", ".join(game["opponent"]["username"] for game in non_correspondence_games)
-            print(f"Playing a game against {opponents}. Will not challenge.")
-            return
+    if client.games.get_ongoing(count=1):
+        print("Playing a game. Will not challenge.")
+        return
 
     # select a time control to play
     tc_seconds = random.choice(TIME_CONTROLS)
